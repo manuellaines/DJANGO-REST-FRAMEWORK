@@ -1,10 +1,14 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction, IntegrityError
-
 from .models import Album, Artist, Contact, Booking
 from .forms import ContactForm
 from .forms import ContactForm, ParagraphErrorList
+from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.viewsets import *
+from rest_framework.response import Response
+from .serializers import *
 
 
 def index(request):
@@ -94,3 +98,37 @@ def search(request):
         'title': title
     }
     return render(request, 'store/search.html', context)
+# class ArtisList(generics.ListCreateAPIView):
+#     queryset=Album.objects.filter(id=1)
+#     serializer_class=AlbumSerializer
+#     Response(serializer_class.data)
+class ArtistViewset(ReadOnlyModelViewSet):
+ 
+    serializer_class = AlbumSerializer
+ 
+    def get_queryset(self):
+        return Album.objects.filter(available=True)
+class AlbumViewset(ReadOnlyModelViewSet):
+ 
+    serializer_class = AlbumSerializer
+ 
+    def get_queryset(self):
+    # Nous récupérons tous les produits dans une variable nommée queryset
+        queryset = Album.objects.filter(available=True)
+        # Vérifions la présence du paramètre ‘category_id’ dans l’url et si oui alors appliquons notre filtre
+        album_id = self.request.GET.get('album_id')
+        album_id=int(album_id)
+        if album_id > 2:
+            queryset = queryset.filter(id=album_id)
+        return queryset
+# class ArticleCreateView(generics.ListCreateAPIView):
+#     queryset=Album.objects.create()
+#     serializer_class = ArtistSerializer
+# class CategoryAPIView(APIView):
+ 
+#     def get(self, *args, **kwargs):
+#         categories = Category.objects.all()
+#         serializer = CategorySerializer(categories, many=True)
+#         return Response(serializer.data)
+ 
+# https://www.section.io/engineering-education/django-api-documentation/

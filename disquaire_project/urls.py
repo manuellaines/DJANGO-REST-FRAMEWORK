@@ -17,10 +17,20 @@ from django.contrib import admin
 from django.urls import path,include
 from store import views
 import debug_toolbar
+from rest_framework.routers import DefaultRouter
 
+from store.views import *
+# router.register('product', ProductViewset, basename='product')
+# router.register('article', ArticleViewset, basename='article')
+
+router=DefaultRouter()
+router.register('artist', ArtistViewset, basename='artist')
+router.register('category', AlbumViewset, basename='category')
 urlpatterns = [
-    path('', views.index, name="index"),
     path('store/', include(('store.urls', 'store'), namespace='store')),
+    # path('api/artist/', ArtisList.as_view()),
+    path('api/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls')),
     path('__debug__/', include(debug_toolbar.urls)),
     path('admin/', admin.site.urls)
 ]
